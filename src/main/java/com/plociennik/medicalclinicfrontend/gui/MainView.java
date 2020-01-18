@@ -1,7 +1,6 @@
 package com.plociennik.medicalclinicfrontend.gui;
+import com.plociennik.medicalclinicfrontend.client.ApiClient;
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.Text;
-import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -9,49 +8,40 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.spring.annotation.SpringComponent;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@SpringComponent
 @Route("test")
 public class MainView extends VerticalLayout {
-    private DoctorsTab doctorsTabClass = new DoctorsTab(this);
+    @Autowired
+    private ApiClient apiClient;
+    private DoctorsPage doctorsPage;
+    private SettingsPage settingsPage = new SettingsPage(this);
+    private AppointmentPage appointmentPage = new AppointmentPage(this);
     private HorizontalLayout mainHorizontal = new HorizontalLayout();
-    private Tab appointmentTab = new Tab("Zarezerwuj wizytę");
-    private Div appointmentPage = new Div();
-    private Tab doctorsTab = new Tab("Nasi lekarze");
-    private Div doctorsPage = new Div();
-    private Tab settingsTab = new Tab("Ustawienia");
-    private Div settingsPage = new Div();
+    private Tab appointmentTab = new Tab("Make an appointment");
+    private Tab doctorsTab = new Tab("Our doctors");
+    private Tab settingsTab = new Tab("Settings");
     private Map<Tab, Component> tabsToPages = new HashMap<>();
     private Tabs tabs = new Tabs(appointmentTab, doctorsTab, settingsTab);
-    private Div pages = new Div(appointmentPage, doctorsTabClass, settingsPage);
-    private Text text = new Text("some");
-    private Text text2 = new Text("some2");
-    private Text text3 = new Text("some3");
-    private Text text4 = new Text("Main horizontal layout");
-    private Text text5 = new Text("some5");
-    private Text text6 = new Text("some5");
-    private Text text7 = new Text("some5");
-    private Button button1 = new Button("1");
-    private Button button2 = new Button("2");
-    private Button button3 = new Button("3");
+    private Div pages = new Div(appointmentPage, doctorsPage, settingsPage);
     private Image logo = new Image("https://imgur.com/DPlKR0y.jpg", "logo");
 
-    public MainView() {
+    public MainView () {
+        apiClient.getDoctors();
         logo.setHeight("44px");
-        appointmentPage.setText("Page#1");
-        doctorsPage.setText("Page#2");
         doctorsPage.setVisible(false);
-        settingsPage.setText("Page#3");
         settingsPage.setVisible(false);
-        doctorsTabClass.setVisible(false);
 
         tabsToPages.put(appointmentTab, appointmentPage);
-        //tabsToPages.put(doctorsTab, doctorsPage);
-        tabsToPages.put(doctorsTab, doctorsTabClass);
+        tabsToPages.put(doctorsTab, doctorsPage);
         tabsToPages.put(settingsTab, settingsPage);
         Set<Component> pagesShown = Stream.of(appointmentPage)
                 .collect(Collectors.toSet());
@@ -63,19 +53,7 @@ public class MainView extends VerticalLayout {
             selectedPage.setVisible(true);
             pagesShown.add(selectedPage);
         });
-        //tabs.setWidthFull();
-        //pages.setWidthFull();
-        HorizontalLayout appLay = new HorizontalLayout();
-        HorizontalLayout docLay = new HorizontalLayout();
-        VerticalLayout setLay = new VerticalLayout();
-        appLay.add(text, text5, button1);
-        docLay.add(text2, text6, button2);
-        setLay.add(text3, text7, button3);
-        appointmentPage.add(appLay);
-        doctorsPage.add(docLay);
-        settingsPage.add(setLay);
-        System.out.println(logo.getElement().getPropertyNames());
-        mainHorizontal.add(text4);
+
         add(mainHorizontal, logo, tabs, pages);
     }
 }
