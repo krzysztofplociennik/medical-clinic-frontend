@@ -7,6 +7,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.spring.annotation.UIScope;
 import org.springframework.beans.factory.annotation.Autowired;
 import java.util.HashMap;
 import java.util.Map;
@@ -15,7 +16,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @org.springframework.stereotype.Component
-@Route("test")
+@Route("main")
+@UIScope
 public class MainView extends VerticalLayout {
     private final DoctorsPage doctorsPage;
     private SettingsPage settingsPage = new SettingsPage();
@@ -35,6 +37,7 @@ public class MainView extends VerticalLayout {
         this.pages = new Div(appointmentPage, doctorsPage, settingsPage);
 
         logo.setHeight("44px");
+        appointmentPage.setVisible(false);
         doctorsPage.setVisible(false);
         settingsPage.setVisible(false);
 
