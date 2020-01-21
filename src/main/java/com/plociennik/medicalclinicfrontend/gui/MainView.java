@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @org.springframework.stereotype.Component
-@Route("main")
+@Route
 @UIScope
 public class MainView extends VerticalLayout {
     private final DoctorsPage doctorsPage;
