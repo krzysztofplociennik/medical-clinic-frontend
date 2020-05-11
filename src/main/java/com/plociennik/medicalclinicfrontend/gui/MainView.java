@@ -20,33 +20,44 @@ import java.util.stream.Stream;
 @UIScope
 public class MainView extends VerticalLayout {
     private final DoctorsPage doctorsPage;
+    private final AppointmentPage appointmentPage;
+    private DashBoardPage dashBoardPage = new DashBoardPage();
     private SettingsPage settingsPage = new SettingsPage();
-    private AppointmentPage appointmentPage = new AppointmentPage();
     private HorizontalLayout mainHorizontal = new HorizontalLayout();
-    private Tab appointmentTab = new Tab("Make an appointment");
+    private Tab dashBoardTab = new Tab("Dashboard");
+    private Tab appointmentTab = new Tab("Appointments");
     private Tab doctorsTab = new Tab("Our doctors");
     private Tab settingsTab = new Tab("Settings");
     private Map<Tab, Component> tabsToPages = new HashMap<>();
-    private Tabs tabs = new Tabs(appointmentTab, doctorsTab, settingsTab);
+    private Tabs tabs = new Tabs(dashBoardTab, appointmentTab, doctorsTab, settingsTab);
     private Div pages;
     private Image logo = new Image("https://imgur.com/DPlKR0y.jpg", "logo");
 
     @Autowired
-    public MainView (DoctorsPage doctorsPage) {
+    public MainView (DoctorsPage doctorsPage, AppointmentPage appointmentPage) {
         this.doctorsPage = doctorsPage;
-        this.pages = new Div(appointmentPage, doctorsPage, settingsPage);
+        this.appointmentPage = appointmentPage;
+        this.pages = new Div(dashBoardPage, appointmentPage, doctorsPage, settingsPage);
 
-        logo.setHeight("44px");
+        logo.setHeight("100px");
+        logo.setWidth("450");
+
         appointmentPage.setVisible(false);
         doctorsPage.setVisible(false);
         settingsPage.setVisible(false);
+        dashBoardTab.setFlexGrow(1);
+        appointmentTab.setFlexGrow(1);
+        doctorsTab.setFlexGrow(1);
+        settingsTab.setFlexGrow(1);
 
+        tabsToPages.put(dashBoardTab, dashBoardPage);
         tabsToPages.put(appointmentTab, appointmentPage);
         tabsToPages.put(doctorsTab, doctorsPage);
         tabsToPages.put(settingsTab, settingsPage);
-        Set<Component> pagesShown = Stream.of(appointmentPage)
+        Set<Component> pagesShown = Stream.of(dashBoardPage)
                 .collect(Collectors.toSet());
 
+        tabs.setWidthFull();
         tabs.addSelectedChangeListener(event -> {
             pagesShown.forEach(page -> page.setVisible(false));
             pagesShown.clear();
@@ -55,6 +66,7 @@ public class MainView extends VerticalLayout {
             pagesShown.add(selectedPage);
         });
         add(mainHorizontal, logo, tabs, pages);
+
     }
 }
 

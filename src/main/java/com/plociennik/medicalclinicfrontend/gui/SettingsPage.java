@@ -1,5 +1,6 @@
 package com.plociennik.medicalclinicfrontend.gui;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
@@ -21,9 +22,13 @@ public class SettingsPage extends VerticalLayout {
 
     public SettingsPage() {
         saveMailButton.setVisible(false);
+        saveMailButton.addThemeVariants(ButtonVariant.LUMO_CONTRAST);
         cancelMailButton.setVisible(false);
+        cancelMailButton.addThemeVariants(ButtonVariant.LUMO_CONTRAST);
         savePasswordButton.setVisible(false);
+        savePasswordButton.addThemeVariants(ButtonVariant.LUMO_CONTRAST);
         cancelPasswordButton.setVisible(false);
+        cancelPasswordButton.addThemeVariants(ButtonVariant.LUMO_CONTRAST);
         editMail.addClickListener(event -> {
             String oldMail = emailField.getValue();
             emailField.setReadOnly(false);
