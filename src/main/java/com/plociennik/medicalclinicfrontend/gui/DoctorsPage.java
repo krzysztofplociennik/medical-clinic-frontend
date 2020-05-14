@@ -1,12 +1,10 @@
 package com.plociennik.medicalclinicfrontend.gui;
 import com.plociennik.medicalclinicfrontend.client.ApiClient;
 import com.plociennik.medicalclinicfrontend.domain.DoctorDto;
-import com.plociennik.medicalclinicfrontend.domain.ReservationDto;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.accordion.Accordion;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.spring.annotation.UIScope;

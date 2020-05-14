@@ -45,10 +45,8 @@ public class MainView extends VerticalLayout {
         appointmentPage.setVisible(false);
         doctorsPage.setVisible(false);
         settingsPage.setVisible(false);
-        dashBoardTab.setFlexGrow(1);
-        appointmentTab.setFlexGrow(1);
-        doctorsTab.setFlexGrow(1);
-        settingsTab.setFlexGrow(1);
+
+        pages.setSizeFull();
 
         tabsToPages.put(dashBoardTab, dashBoardPage);
         tabsToPages.put(appointmentTab, appointmentPage);
@@ -57,7 +55,6 @@ public class MainView extends VerticalLayout {
         Set<Component> pagesShown = Stream.of(dashBoardPage)
                 .collect(Collectors.toSet());
 
-        tabs.setWidthFull();
         tabs.addSelectedChangeListener(event -> {
             pagesShown.forEach(page -> page.setVisible(false));
             pagesShown.clear();
@@ -65,8 +62,9 @@ public class MainView extends VerticalLayout {
             selectedPage.setVisible(true);
             pagesShown.add(selectedPage);
         });
-        add(mainHorizontal, logo, tabs, pages);
 
+        add(mainHorizontal, logo, tabs, pages);
+        setSizeFull();
     }
 }
 

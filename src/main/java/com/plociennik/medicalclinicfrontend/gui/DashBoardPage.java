@@ -1,5 +1,4 @@
 package com.plociennik.medicalclinicfrontend.gui;
-
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
@@ -24,6 +23,5 @@ public class DashBoardPage extends VerticalLayout {
                 "Curabitur pellentesque massa dolor, eget euismod lacus maximus semper. Mauris at lacinia sapien, at consequat dui. " +
                 "Nulla ultricies massa ut risus rutrum, eget malesuada risus convallis.");
         add(welcomeMessage, lorem);
-
     }
 }

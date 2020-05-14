@@ -1,5 +1,4 @@
 package com.plociennik.medicalclinicfrontend.gui.temps;
-
 import com.plociennik.medicalclinicfrontend.client.ApiClient;
 import com.plociennik.medicalclinicfrontend.domain.ReservationDto;
 import com.vaadin.flow.component.Text;
@@ -22,7 +21,6 @@ public class TemplateGridView extends VerticalLayout {
     public TemplateGridView(ApiClient apiClient) {
         this.apiClient = apiClient;
         listOfReservationsGrid.setItems(apiClient.getReservations());
-        //listOfReservationsGrid.setSizeFull();
         setSizeFull();
         add(listOfReservationsGrid, text, button);
     }

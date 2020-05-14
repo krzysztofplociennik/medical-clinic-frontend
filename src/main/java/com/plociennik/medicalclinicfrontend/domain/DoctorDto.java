@@ -1,5 +1,4 @@
 package com.plociennik.medicalclinicfrontend.domain;
-
 import java.util.List;
 
 public class DoctorDto {

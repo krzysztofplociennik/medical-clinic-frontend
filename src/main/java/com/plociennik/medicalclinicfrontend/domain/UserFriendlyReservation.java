@@ -1,12 +1,11 @@
 package com.plociennik.medicalclinicfrontend.domain;
-
 import java.time.LocalDateTime;
 
 public class UserFriendlyReservation {
-    private Long doctor;
+    private String doctor;
     private LocalDateTime when;
 
-    public UserFriendlyReservation(Long doctor, LocalDateTime when) {
+    public UserFriendlyReservation(String doctor, LocalDateTime when) {
         this.doctor = doctor;
         this.when = when;
     }
@@ -14,11 +13,11 @@ public class UserFriendlyReservation {
     public UserFriendlyReservation() {
     }
 
-    public Long getDoctor() {
+    public String getDoctor() {
         return doctor;
     }
 
-    public void setDoctor(Long doctor) {
+    public void setDoctor(String doctor) {
         this.doctor = doctor;
     }
 
