@@ -1,4 +1,6 @@
 package com.plociennik.medicalclinicfrontend.gui;
+import com.vaadin.flow.component.ClickNotifier;
+import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.icon.Icon;
@@ -8,7 +10,9 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.PasswordField;
+import com.vaadin.flow.spring.annotation.UIScope;
 
+@UIScope
 public class SettingsPage extends VerticalLayout {
     private Button logoutButton = new Button("logout");
     private Button saveMailButton = new Button("save");
@@ -19,16 +23,29 @@ public class SettingsPage extends VerticalLayout {
     private PasswordField passwordField = new PasswordField();
     private Icon editMail = new Icon(VaadinIcon.EDIT);
     private Icon editPassword = new Icon(VaadinIcon.EDIT);
+    private HorizontalLayout mailLayout = new HorizontalLayout();
+    private HorizontalLayout passwordLayout = new HorizontalLayout();
 
     public SettingsPage() {
+
+        setSizeFull();
+        //setJustifyContentMode(JustifyContentMode.CENTER);
+        setAlignItems(Alignment.CENTER);
+
+        setupEmailView();
+        setupPasswordView();
+
+        add(mailLayout, passwordLayout, logoutButton);
+    }
+
+    public void setupEmailView() {
         saveMailButton.setVisible(false);
-        saveMailButton.addThemeVariants(ButtonVariant.LUMO_CONTRAST);
+        saveMailButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        saveMailButton.addClickShortcut(Key.ENTER);
         cancelMailButton.setVisible(false);
-        cancelMailButton.addThemeVariants(ButtonVariant.LUMO_CONTRAST);
-        savePasswordButton.setVisible(false);
-        savePasswordButton.addThemeVariants(ButtonVariant.LUMO_CONTRAST);
-        cancelPasswordButton.setVisible(false);
-        cancelPasswordButton.addThemeVariants(ButtonVariant.LUMO_CONTRAST);
+        cancelMailButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
+        saveMailButton.addClickShortcut(Key.ESCAPE);
+
         editMail.addClickListener(event -> {
             String oldMail = emailField.getValue();
             emailField.setReadOnly(false);
@@ -37,11 +54,17 @@ public class SettingsPage extends VerticalLayout {
             saveMailButton.addClickListener(saveEvent -> {
                 if(emailField.isInvalid()) {
                     Notification.show("The mail you gave is invalid!");
-                } else { Notification.show("The mail has been changed!"); }
-                emailField.setValue(emailField.getValue());
-                saveMailButton.setVisible(false);
-                cancelMailButton.setVisible(false);
-                emailField.setReadOnly(true);
+                } else if (emailField.getValue().equals(oldMail)) {
+                    saveMailButton.setVisible(false);
+                    cancelMailButton.setVisible(false);
+                    emailField.setReadOnly(true);
+                } else {
+                    Notification.show("The mail has been changed!");
+                    emailField.setValue(emailField.getValue());
+                    saveMailButton.setVisible(false);
+                    cancelMailButton.setVisible(false);
+                    emailField.setReadOnly(true);
+                }
             });
             cancelMailButton.addClickListener(cancelEvent -> {
                 saveMailButton.setVisible(false);
@@ -50,17 +73,39 @@ public class SettingsPage extends VerticalLayout {
                 emailField.setReadOnly(true);
             });
         });
+
+        emailField.setLabel("Your current mail");
+        emailField.setValue("example@com.pl");
+        emailField.setReadOnly(true);
+
+        mailLayout.add(emailField, editMail, saveMailButton, cancelMailButton);
+    }
+
+    public void setupPasswordView() {
+        savePasswordButton.setVisible(false);
+        savePasswordButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        savePasswordButton.addClickShortcut(Key.ENTER);
+        cancelPasswordButton.setVisible(false);
+        cancelPasswordButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
+        cancelPasswordButton.addClickShortcut(Key.ESCAPE);
+
         editPassword.addClickListener(event -> {
             String oldPass = passwordField.getValue();
             passwordField.setReadOnly(false);
             savePasswordButton.setVisible(true);
             cancelPasswordButton.setVisible(true);
             savePasswordButton.addClickListener(saveEvent -> {
-                Notification.show("The password has been changed!");
-                passwordField.setValue(passwordField.getValue());
-                savePasswordButton.setVisible(false);
-                cancelPasswordButton.setVisible(false);
-                passwordField.setReadOnly(true);
+                if (passwordField.getValue().equals(oldPass)) {
+                    savePasswordButton.setVisible(false);
+                    cancelPasswordButton.setVisible(false);
+                    passwordField.setReadOnly(true);
+                } else {
+                    Notification.show("The password has been changed!");
+                    passwordField.setValue(passwordField.getValue());
+                    savePasswordButton.setVisible(false);
+                    cancelPasswordButton.setVisible(false);
+                    passwordField.setReadOnly(true);
+                }
             });
             cancelPasswordButton.addClickListener(cancelEvent -> {
                 savePasswordButton.setVisible(false);
@@ -69,16 +114,11 @@ public class SettingsPage extends VerticalLayout {
                 passwordField.setReadOnly(true);
             });
         });
-        emailField.setLabel("Your current mail");
-        emailField.setValue("example@com.pl");
-        emailField.setReadOnly(true);
+
         passwordField.setLabel("Your current password");
         passwordField.setValue("jan123");
         passwordField.setReadOnly(true);
-        HorizontalLayout mailLayout = new HorizontalLayout();
-        HorizontalLayout passwordLayout = new HorizontalLayout();
-        mailLayout.add(emailField, editMail, saveMailButton, cancelMailButton);
+
         passwordLayout.add(passwordField, editPassword, savePasswordButton, cancelPasswordButton);
-        add(mailLayout, passwordLayout, logoutButton);
     }
 }
