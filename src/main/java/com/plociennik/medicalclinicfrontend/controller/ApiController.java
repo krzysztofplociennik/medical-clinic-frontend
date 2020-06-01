@@ -1,6 +1,7 @@
 package com.plociennik.medicalclinicfrontend.controller;
 import com.plociennik.medicalclinicfrontend.client.ApiClient;
 import com.plociennik.medicalclinicfrontend.domain.DoctorDto;
+import com.plociennik.medicalclinicfrontend.domain.PatientDto;
 import com.plociennik.medicalclinicfrontend.domain.ReservationDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,5 +24,10 @@ public class ApiController {
     public void getAllDoctors() {
         List<DoctorDto> doctorsList = apiClient.getDoctors();
         doctorsList.forEach(doctorDto -> System.out.println(doctorDto.getName() + " " + doctorDto.getRating()));
+    }
+    @RequestMapping(method = RequestMethod.GET, value = "getPatients")
+    public void getAllPatients() {
+        List<PatientDto> patientsList = apiClient.getPatients();
+        patientsList.forEach(patientDto -> System.out.println(patientDto.getName() + " " + patientDto.getMail()));
     }
 }

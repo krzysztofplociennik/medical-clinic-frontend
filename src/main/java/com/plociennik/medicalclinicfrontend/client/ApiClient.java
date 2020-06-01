@@ -1,5 +1,6 @@
 package com.plociennik.medicalclinicfrontend.client;
 import com.plociennik.medicalclinicfrontend.domain.DoctorDto;
+import com.plociennik.medicalclinicfrontend.domain.PatientDto;
 import com.plociennik.medicalclinicfrontend.domain.ReservationDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +34,11 @@ public class ApiClient {
                 .build().encode().toUri();
     }
 
+    private URI getAllPatientsURI() {
+        return UriComponentsBuilder.fromHttpUrl(baseEndpoint + "/pnt/getPatients")
+                .build().encode().toUri();
+    }
+
     public List<ReservationDto> getReservations() {
         try {
             ReservationDto[] response = restTemplate.getForObject(getAllReservationsURI(), ReservationDto[].class);
@@ -47,6 +53,16 @@ public class ApiClient {
         try {
             DoctorDto[] response = restTemplate.getForObject(getAllDoctorsURI(), DoctorDto[].class);
             return Arrays.asList(ofNullable(response).orElse(new DoctorDto[0]));
+        } catch (RestClientException e) {
+            LOGGER.error(e.getMessage(), e);
+            return new ArrayList<>();
+        }
+    }
+
+    public List<PatientDto> getPatients() {
+        try {
+            PatientDto[] response = restTemplate.getForObject(getAllPatientsURI(), PatientDto[].class);
+            return Arrays.asList(ofNullable(response).orElse(new PatientDto[0]));
         } catch (RestClientException e) {
             LOGGER.error(e.getMessage(), e);
             return new ArrayList<>();

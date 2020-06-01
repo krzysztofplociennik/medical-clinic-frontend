@@ -2,6 +2,7 @@ package com.plociennik.medicalclinicfrontend.gui;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -26,7 +27,8 @@ public class MainView extends VerticalLayout {
     private final AppointmentPage appointmentPage;
     private DashBoardPage dashBoardPage = new DashBoardPage();
     private SettingsPage settingsPage = new SettingsPage();
-    private HorizontalLayout mainHorizontalLayout = new HorizontalLayout();
+    private HorizontalLayout topHorizontalLayout = new HorizontalLayout();
+    private HorizontalLayout logoutButtonLayout = new HorizontalLayout();
     private Tab dashBoardTab = new Tab("Dashboard");
     private Tab appointmentTab = new Tab("Appointments");
     private Tab doctorsTab = new Tab("Our doctors");
@@ -43,14 +45,11 @@ public class MainView extends VerticalLayout {
         this.appointmentPage = appointmentPage;
         this.pages = new Div(dashBoardPage, appointmentPage, doctorsPage, settingsPage);
 
+        setupTopLayout();
         setupPages();
         setupTabs();
-        setupLogout();
-        setupLogo();
 
-        mainHorizontalLayout.add(logo, buttonLogout);
-
-        add(mainHorizontalLayout, tabs, pages);
+        add(topHorizontalLayout, tabs, pages);
         setSizeFull();
     }
 
@@ -80,14 +79,14 @@ public class MainView extends VerticalLayout {
         });
     }
 
-    public void setupLogout() {
+    public void setupTopLayout() {
+        topHorizontalLayout.setWidthFull();
+        logoutButtonLayout.setWidthFull();
+        logoutButtonLayout.add(buttonLogout);
+        logoutButtonLayout.setAlignItems(Alignment.START);
+        logoutButtonLayout.setJustifyContentMode(JustifyContentMode.END);
         buttonLogout.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        buttonLogout.setText("logout");
-    }
-
-    public void setupLogo() {
-        logo.setHeight("100px");
-        logo.setWidth("450");
+        topHorizontalLayout.add(logo, logoutButtonLayout);
     }
 }
 

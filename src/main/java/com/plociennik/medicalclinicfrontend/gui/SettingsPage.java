@@ -14,7 +14,6 @@ import com.vaadin.flow.spring.annotation.UIScope;
 
 @UIScope
 public class SettingsPage extends VerticalLayout {
-    private Button logoutButton = new Button("logout");
     private Button saveMailButton = new Button("save");
     private Button cancelMailButton = new Button("cancel");
     private Button savePasswordButton = new Button("save");
@@ -35,7 +34,7 @@ public class SettingsPage extends VerticalLayout {
         setupEmailView();
         setupPasswordView();
 
-        add(mailLayout, passwordLayout, logoutButton);
+        add(mailLayout, passwordLayout);
     }
 
     public void setupEmailView() {
