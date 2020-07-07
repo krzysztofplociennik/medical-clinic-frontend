@@ -1,7 +1,10 @@
 package com.plociennik.medicalclinicfrontend.client;
-import com.plociennik.medicalclinicfrontend.domain.DoctorDto;
-import com.plociennik.medicalclinicfrontend.domain.PatientDto;
-import com.plociennik.medicalclinicfrontend.domain.ReservationDto;
+import com.google.gson.Gson;
+import com.plociennik.medicalclinicfrontend.domain.*;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,10 +13,14 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
+import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import static java.util.Optional.ofNullable;
 
 @Component
@@ -36,6 +43,21 @@ public class ApiClient {
 
     private URI getAllPatientsURI() {
         return UriComponentsBuilder.fromHttpUrl(baseEndpoint + "/pnt/getPatients")
+                .build().encode().toUri();
+    }
+
+    private URI createReservationURI(LocalDateTime date, Long patientId, Long doctorId) throws URISyntaxException {
+        return UriComponentsBuilder.fromHttpUrl(baseEndpoint + "/rsrv/createReservation")
+                .queryParam("id", getReservations().size() + 1000)
+                .queryParam("time", LocalDateTime.now())
+                .queryParam("patientId", getReservations().size() + 1001)
+                .queryParam("doctorId", getReservations().size() + 1002)
+                .build().encode().toUri();
+    }
+
+    private URI deleteReservationURI(Long id) {
+        return UriComponentsBuilder.fromHttpUrl(baseEndpoint + "/rsrv/deleteReservation")
+                .queryParam("reservationId", id)
                 .build().encode().toUri();
     }
 
@@ -67,5 +89,35 @@ public class ApiClient {
             LOGGER.error(e.getMessage(), e);
             return new ArrayList<>();
         }
+    }
+
+    public void createReservation(ReservationDto reservationDto) throws IOException {
+        ReservationDto reservation = new ReservationDto();
+        reservation.setTime(reservationDto.getTime());
+        reservation.setPatientId(reservationDto.getPatientId());
+        reservation.setDoctorId(reservationDto.getDoctorId());
+        Gson gson = new Gson();
+        String jsonContent = gson.toJson(reservation);
+
+        CloseableHttpClient httpClient = HttpClientBuilder.create().build();
+        try {
+            HttpPost request = new HttpPost(baseEndpoint + "/rsrv/createReservation");
+            StringEntity params = new StringEntity(jsonContent);
+            request.addHeader("content-type", "application/json");
+            request.setEntity(params);
+            httpClient.execute(request);
+            //handle response here...
+        } catch (Exception ex) {
+            //handle exception here
+        } finally {
+            httpClient.close();
+        }
+    }
+
+    public void deleteReservation(UserFriendlyReservation reservation) {
+        Optional<ReservationDto> searchedReservation = getReservations().stream()
+                .filter(reservationDto -> reservationDto.getTime().equals(reservation.getWhen()))
+                .findFirst();
+
     }
 }

@@ -9,7 +9,6 @@ public class DashBoardPage extends VerticalLayout {
             "or cancel if you have a need for it.");
 
     public DashBoardPage() {
-
         add(new Paragraph(textWelcomeMessage), textIntroMessage);
     }
 

@@ -3,9 +3,9 @@ import java.time.LocalDateTime;
 
 public class UserFriendlyReservation {
     private String doctor;
-    private LocalDateTime when;
+    private String when;
 
-    public UserFriendlyReservation(String doctor, LocalDateTime when) {
+    public UserFriendlyReservation(String doctor, String when) {
         this.doctor = doctor;
         this.when = when;
     }
@@ -21,11 +21,11 @@ public class UserFriendlyReservation {
         this.doctor = doctor;
     }
 
-    public LocalDateTime getWhen() {
+    public String getWhen() {
         return when;
     }
 
-    public void setWhen(LocalDateTime when) {
+    public void setWhen(String when) {
         this.when = when;
     }
 }
