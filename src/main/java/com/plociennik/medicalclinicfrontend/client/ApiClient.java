@@ -118,6 +118,6 @@ public class ApiClient {
         Optional<ReservationDto> searchedReservation = getReservations().stream()
                 .filter(reservationDto -> reservationDto.getTime().equals(reservation.getWhen()))
                 .findFirst();
-
+        restTemplate.delete(deleteReservationURI(searchedReservation.get().getId()));
     }
 }

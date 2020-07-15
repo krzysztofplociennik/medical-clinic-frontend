@@ -28,4 +28,12 @@ public class UserFriendlyReservation {
     public void setWhen(String when) {
         this.when = when;
     }
+
+    @Override
+    public String toString() {
+        return "UserFriendlyReservation{" +
+                "doctor='" + doctor + '\'' +
+                ", when='" + when + '\'' +
+                '}';
+    }
 }

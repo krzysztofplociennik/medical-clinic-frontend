@@ -17,9 +17,7 @@ import com.vaadin.flow.component.timepicker.TimePicker;
 import com.vaadin.flow.spring.annotation.UIScope;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -59,24 +57,24 @@ public class AppointmentPage extends VerticalLayout {
         setupButtons();
 
         add(buttonsTopLayout, gridAndFormLayout);
+
     }
 
     public void setupUserFriendlyGrid() {
         friendlyList = new ArrayList<>();
         for (ReservationDto instance : apiClient.getReservations()) {
-            Optional<DoctorDto> searchedObject = apiClient.getDoctors().stream().filter(doctorDto -> doctorDto.getId() == instance.getDoctorId()).findFirst();
-            friendlyList.add(new UserFriendlyReservation(searchedObject.get().getName(), instance.getTime()));
+            Optional<DoctorDto> searchedDoctor = apiClient.getDoctors().stream().filter(doctorDto -> doctorDto.getId().equals(instance.getDoctorId())).findFirst();
+            if (searchedDoctor.isPresent()) {
+                friendlyList.add(new UserFriendlyReservation(searchedDoctor.get().getName(), instance.getTime()));
+            }
         }
         gridUserFriendlyList.setItems(friendlyList);
-        gridUserFriendlyList.addThemeVariants(GridVariant.LUMO_COLUMN_BORDERS);
+        gridUserFriendlyList.addThemeVariants(GridVariant.LUMO_WRAP_CELL_CONTENT);
         gridUserFriendlyList.asSingleSelect().addValueChangeListener(event -> {
             appointmentForm.setVisible(true);
             buttonCancel.setVisible(true);
-            UserFriendlyReservation selectedRecord = gridUserFriendlyList.asSingleSelect().getValue();
-            buttonDelete.addClickListener(buttonClickEvent -> {
-                deleteEvent(selectedRecord);
-            });
         });
+
     }
 
     public void setupAppointmentForm() {
@@ -96,18 +94,24 @@ public class AppointmentPage extends VerticalLayout {
             }
         });
         buttonDelete.addThemeVariants(ButtonVariant.LUMO_ERROR);
-//        buttonDelete.addClickListener(buttonClickEvent -> {
-//            deleteEvent(gridUserFriendlyList.asSingleSelect().getValue());
-//        });
         appointmentForm.add(layout);
     }
 
     public void setupButtons() {
         buttonMakeAppointment.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         buttonMakeAppointment.addClickListener(buttonClickEvent -> {
+            gridUserFriendlyList.asSingleSelect().clear();
             appointmentForm.setVisible(true);
             buttonCancel.setVisible(true);
         });
+
+        buttonDelete.addClickListener(event -> {
+            UserFriendlyReservation reservation = gridUserFriendlyList.asSingleSelect().getValue();
+            apiClient.deleteReservation(reservation);
+            gridUserFriendlyList.deselectAll();
+            setupUserFriendlyGrid();
+        });
+
         buttonCancel.setVisible(false);
         buttonCancel.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         buttonCancel.addClickListener(buttonClickEvent -> {
@@ -117,6 +121,7 @@ public class AppointmentPage extends VerticalLayout {
     }
 
     public void saveEvent() throws IOException {
+        gridUserFriendlyList.asSingleSelect().clear();
         ReservationDto reservation = new ReservationDto();
         LocalDate date = datePicker.getValue();
         LocalTime time = timePicker.getValue();
@@ -131,16 +136,5 @@ public class AppointmentPage extends VerticalLayout {
         comboBoxDoctor.setValue(null);
         datePicker.setValue(null);
         timePicker.setValue(null);
-    }
-
-    public void deleteEvent(UserFriendlyReservation reservation) {
-        System.out.println("Before deleting: " + friendlyList.size());
-        Optional<UserFriendlyReservation> searchedReservation = Optional.of(friendlyList
-                .stream()
-                .filter(reservation1 -> reservation1.getWhen().equals(reservation.getWhen()))
-                .findFirst().get());
-        friendlyList.remove(searchedReservation);
-        System.out.println("After deleting: " + friendlyList.size());
-        setupUserFriendlyGrid();
     }
 }
