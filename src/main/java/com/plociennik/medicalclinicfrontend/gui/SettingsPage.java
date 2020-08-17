@@ -1,5 +1,4 @@
 package com.plociennik.medicalclinicfrontend.gui;
-import com.vaadin.flow.component.ClickNotifier;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -28,7 +27,6 @@ public class SettingsPage extends VerticalLayout {
     public SettingsPage() {
 
         setSizeFull();
-        //setJustifyContentMode(JustifyContentMode.CENTER);
         setAlignItems(Alignment.CENTER);
 
         setupEmailView();

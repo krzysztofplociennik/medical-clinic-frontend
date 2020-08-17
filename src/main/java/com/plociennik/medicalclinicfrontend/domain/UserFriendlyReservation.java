@@ -1,5 +1,4 @@
 package com.plociennik.medicalclinicfrontend.domain;
-import java.time.LocalDateTime;
 
 public class UserFriendlyReservation {
     private String doctor;

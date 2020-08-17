@@ -1,8 +1,4 @@
 package com.plociennik.medicalclinicfrontend.domain;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import java.time.LocalDateTime;
 
 public class ReservationDto {
     private Long id;

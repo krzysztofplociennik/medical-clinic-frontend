@@ -11,6 +11,7 @@ import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.timepicker.TimePicker;
@@ -43,6 +44,7 @@ public class AppointmentPage extends VerticalLayout {
     private HorizontalLayout buttonsTopLayout = new HorizontalLayout();
     private HorizontalLayout gridAndFormLayout = new HorizontalLayout();
     private static final String DATE_FORMATTER = "yyyy-MM-dd HH:mm";
+    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATE_FORMATTER);
 
     @Autowired
     public AppointmentPage(ApiClient apiClient) {
@@ -80,15 +82,14 @@ public class AppointmentPage extends VerticalLayout {
     public void setupAppointmentForm() {
         appointmentForm.setVisible(false);
         HorizontalLayout buttons = new HorizontalLayout(buttonSave, buttonDelete);
-        VerticalLayout layout = new VerticalLayout(comboBoxPatient, comboBoxDoctor, datePicker, timePicker, buttons);
-        comboBoxDoctor.setItemLabelGenerator(DoctorDto::getName);
+        VerticalLayout layout = new VerticalLayout(comboBoxDoctor, datePicker, timePicker, buttons);
         comboBoxDoctor.setItems(apiClient.getDoctors());
-        comboBoxPatient.setItemLabelGenerator(PatientDto::getName);
-        comboBoxPatient.setItems(apiClient.getPatients());
+        comboBoxDoctor.setItemLabelGenerator(DoctorDto::getName);
         buttonSave.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         buttonSave.addClickListener(buttonClickEvent -> {
             try {
                 saveEvent();
+                Notification.show("The reservation has been added!");
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -110,6 +111,7 @@ public class AppointmentPage extends VerticalLayout {
             apiClient.deleteReservation(reservation);
             gridUserFriendlyList.deselectAll();
             setupUserFriendlyGrid();
+            Notification.show("The reservation has been deleted!");
         });
 
         buttonCancel.setVisible(false);
@@ -126,13 +128,11 @@ public class AppointmentPage extends VerticalLayout {
         LocalDate date = datePicker.getValue();
         LocalTime time = timePicker.getValue();
         LocalDateTime dateTime = LocalDateTime.of(date, time);
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATE_FORMATTER);
         reservation.setTime(dateTime.format(formatter));
-        reservation.setPatientId(comboBoxPatient.getValue().getId());
+        reservation.setPatientId(1L);
         reservation.setDoctorId(comboBoxDoctor.getValue().getId());
         apiClient.createReservation(reservation);
         setupUserFriendlyGrid();
-        comboBoxPatient.setValue(null);
         comboBoxDoctor.setValue(null);
         datePicker.setValue(null);
         timePicker.setValue(null);

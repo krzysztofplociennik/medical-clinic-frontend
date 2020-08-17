@@ -1,22 +1,27 @@
 package com.plociennik.medicalclinicfrontend.domain;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 public class PatientDto {
     private Long id;
     private String name;
     private String mail;
     private String phoneNumber;
+    private Set<RatingDto> ratings;
     private List<ReservationDto> reservations;
 
-    public PatientDto(Long id, String name, String mail, String phoneNumber, List<ReservationDto> reservations) {
+    public PatientDto(Long id, String name, String mail, String phoneNumber, Set<RatingDto> ratings, List<ReservationDto> reservations) {
         this.id = id;
         this.name = name;
         this.mail = mail;
         this.phoneNumber = phoneNumber;
+        this.ratings = ratings;
         this.reservations = reservations;
     }
 
     public PatientDto() {
+            ratings = new LinkedHashSet<>();
     }
 
     public Long getId() {
