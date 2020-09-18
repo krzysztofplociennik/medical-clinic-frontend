@@ -5,6 +5,7 @@ import com.plociennik.medicalclinicfrontend.domain.PatientDto;
 import com.plociennik.medicalclinicfrontend.domain.ReservationDto;
 import com.plociennik.medicalclinicfrontend.domain.UserFriendlyReservation;
 import com.plociennik.medicalclinicfrontend.logic.DateConverter;
+import com.plociennik.medicalclinicfrontend.logic.SessionManager;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -30,11 +31,11 @@ import java.util.Optional;
 @Component
 @UIScope
 public class AppointmentPage extends VerticalLayout {
-    private ApiClient apiClient;
+    private final ApiClient apiClient;
+    private SessionManager sessionManager;
     private FormLayout appointmentForm = new FormLayout();
     private Button buttonMakeAppointment = new Button("make an appointment!");
     private Grid<UserFriendlyReservation> gridUserFriendlyList = new Grid<>(UserFriendlyReservation.class);
-    private ArrayList<UserFriendlyReservation> friendlyList = new ArrayList<>();
     private ComboBox<DoctorDto> comboBoxDoctor = new ComboBox<>("Doctor");
     private Button buttonSave = new Button("Save");
     private Button buttonDelete = new Button("Delete");
@@ -43,36 +44,27 @@ public class AppointmentPage extends VerticalLayout {
     private TimePicker timePicker = new TimePicker("Time");
     private HorizontalLayout buttonsTopLayout = new HorizontalLayout();
     private HorizontalLayout gridAndFormLayout = new HorizontalLayout();
-    private Notification successNotification = new Notification();
-    private Notification wrongDateNotification = new Notification();
-    private Notification cantBookWeekendsNotification = new Notification();
-    private Notification duplicateReservationNotification = new Notification();
-    private Notification notFilledInfoNotification = new Notification();
-    private Notification deletedReservationNotification = new Notification();
-    private PatientDto loggedPatient;
     private DateConverter dateConverter = new DateConverter();
 
     @Autowired
-    public AppointmentPage(ApiClient apiClient) {
+    public AppointmentPage(ApiClient apiClient, SessionManager sessionManager) {
         this.apiClient = apiClient;
+        this.sessionManager = sessionManager;
 
         buttonsTopLayout.add(buttonMakeAppointment, buttonCancel);
         gridAndFormLayout.add(gridUserFriendlyList, appointmentForm);
         gridAndFormLayout.setSizeFull();
 
-        loggedPatient = apiClient.getPatients().stream().filter(p -> p.getId().equals(1L)).findFirst().get();
-
         setupUserFriendlyGrid();
         setupAppointmentForm();
         setupButtons();
-        setupNotifications();
 
         add(buttonsTopLayout, gridAndFormLayout);
     }
 
     public void setupUserFriendlyGrid() {
-        friendlyList = new ArrayList<>();
-        for (ReservationDto instance : apiClient.getReservations()) {
+        ArrayList<UserFriendlyReservation> friendlyList = new ArrayList<>();
+        for (ReservationDto instance : sessionManager.getLoggedInUserAsPatient().getReservations()) {
             Optional<DoctorDto> searchedDoctor = apiClient.getDoctors().stream().filter(doctorDto -> doctorDto.getId().equals(instance.getDoctorId())).findFirst();
             if (searchedDoctor.isPresent()) {
                 friendlyList.add(new UserFriendlyReservation(searchedDoctor.get().getName(), instance.getTime()));
@@ -98,6 +90,20 @@ public class AppointmentPage extends VerticalLayout {
     }
 
     public void setupButtons() {
+        Notification reservationAddedNotification = new Notification("The reservation has been added!", 3000);
+        Notification wrongDateNotification = new Notification("You can't pick this date!",
+                3000, Notification.Position.MIDDLE);
+        Notification cantBookWeekendsNotification = new Notification("You can't make a reservation on weekends!",
+                3000, Notification.Position.MIDDLE);
+        Notification duplicateReservationNotification = new Notification("There's already a reservation at that time!",
+                3000, Notification.Position.MIDDLE);
+        Notification notFilledInfoNotification = new Notification("Fill all required information!",
+                3000, Notification.Position.MIDDLE);
+        Notification deletedReservationNotification = new Notification("The reservation has been deleted!",
+                3000);
+        add(reservationAddedNotification, wrongDateNotification, cantBookWeekendsNotification,
+                duplicateReservationNotification, notFilledInfoNotification, deletedReservationNotification);
+
         buttonMakeAppointment.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         buttonMakeAppointment.addClickListener(event -> {
             gridUserFriendlyList.asSingleSelect().clear();
@@ -120,7 +126,7 @@ public class AppointmentPage extends VerticalLayout {
                 } else {
                     try {
                         saveEvent();
-                        successNotification.open();
+                        reservationAddedNotification.open();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -145,35 +151,13 @@ public class AppointmentPage extends VerticalLayout {
         });
     }
 
-    public void setupNotifications() {
-        successNotification.setText("The reservation has been added!");
-        successNotification.setDuration(3000);
-        wrongDateNotification.setText("You can't pick this date!");
-        wrongDateNotification.setDuration(3000);
-        wrongDateNotification.setPosition(Notification.Position.MIDDLE);
-        cantBookWeekendsNotification.setText("You can't make a reservation on weekends!");
-        cantBookWeekendsNotification.setDuration(3000);
-        cantBookWeekendsNotification.setPosition(Notification.Position.MIDDLE);
-        duplicateReservationNotification.setText("There's already a reservation at that time!");
-        duplicateReservationNotification.setDuration(3000);
-        duplicateReservationNotification.setPosition(Notification.Position.MIDDLE);
-        notFilledInfoNotification.setText("Fill all required information!");
-        notFilledInfoNotification.setDuration(3000);
-        notFilledInfoNotification.setPosition(Notification.Position.MIDDLE);
-        deletedReservationNotification.setText("The reservation has been deleted!");
-        deletedReservationNotification.setDuration(3000);
-
-        add(successNotification, wrongDateNotification, cantBookWeekendsNotification,
-                duplicateReservationNotification, notFilledInfoNotification, deletedReservationNotification);
-    }
-
     public void saveEvent() throws IOException {
         ReservationDto reservation = new ReservationDto();
         LocalDate date = datePicker.getValue();
         LocalTime time = timePicker.getValue();
         LocalDateTime dateTime = LocalDateTime.of(date, time);
         reservation.setTime(dateConverter.convertToString(dateTime));
-        reservation.setPatientId(loggedPatient.getId());
+        reservation.setPatientId(sessionManager.getLoggedInUserAsPatient().getId());
         reservation.setDoctorId(comboBoxDoctor.getValue().getId());
 
         apiClient.createReservation(reservation);

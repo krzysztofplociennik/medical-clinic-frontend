@@ -1,5 +1,8 @@
 package com.plociennik.medicalclinicfrontend.security;
 
+import com.plociennik.medicalclinicfrontend.client.ApiClient;
+import com.plociennik.medicalclinicfrontend.domain.PatientDto;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -10,11 +13,14 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import java.util.List;
 
 @EnableWebSecurity
 @Configuration
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
+    @Autowired
+    private ApiClient apiClient;
     private static final String LOGIN_PROCESSING_URL = "/login";
     private static final String LOGIN_FAILURE_URL = "/login?error";
     private static final String LOGIN_URL = "/login";
@@ -40,35 +46,26 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     public UserDetailsService userDetailsService() {
 
-        UserDetails dummyUser =
-                User.withDefaultPasswordEncoder()
-                        .username("1")
-                        .password("1")
-                        .roles("USER")
-                        .build();
+        InMemoryUserDetailsManager memoryUserDetailsManager = new InMemoryUserDetailsManager();
 
-        UserDetails dummyAdmin =
-                User.withDefaultPasswordEncoder()
-                        .username("2")
-                        .password("2")
+        for (PatientDto patient : apiClient.getPatients()) {
+            if (patient.getUsername().equals("admin")) {
+                UserDetails admin = User.withDefaultPasswordEncoder()
+                        .username(patient.getUsername())
+                        .password(patient.getPassword())
                         .roles("ADMIN")
                         .build();
-
-        UserDetails user =
-                User.withDefaultPasswordEncoder()
-                        .username("user")
-                        .password("user1")
+                memoryUserDetailsManager.createUser(admin);
+            } else {
+                UserDetails user = User.withDefaultPasswordEncoder()
+                        .username(patient.getUsername())
+                        .password(patient.getPassword())
                         .roles("USER")
                         .build();
-
-        UserDetails admin =
-                User.withDefaultPasswordEncoder()
-                        .username("admin")
-                        .password("admin1")
-                        .roles("ADMIN")
-                        .build();
-
-        return new InMemoryUserDetailsManager(user, admin, dummyUser, dummyAdmin);
+                memoryUserDetailsManager.createUser(user);
+            }
+        }
+        return memoryUserDetailsManager;
     }
 
     @Override

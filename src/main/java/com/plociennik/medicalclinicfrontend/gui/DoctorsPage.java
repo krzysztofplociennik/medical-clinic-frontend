@@ -3,6 +3,7 @@ import com.plociennik.medicalclinicfrontend.client.ApiClient;
 import com.plociennik.medicalclinicfrontend.domain.DoctorDto;
 import com.plociennik.medicalclinicfrontend.domain.PatientDto;
 import com.plociennik.medicalclinicfrontend.domain.RatingDto;
+import com.plociennik.medicalclinicfrontend.logic.SessionManager;
 import com.plociennik.medicalclinicfrontend.logic.DateConverter;
 import com.vaadin.flow.component.accordion.Accordion;
 import com.vaadin.flow.component.button.Button;
@@ -26,27 +27,29 @@ import java.util.stream.Collectors;
 @UIScope
 public class DoctorsPage extends VerticalLayout {
     private ApiClient apiClient;
-    private Accordion accordion = new Accordion();
-    private PatientDto loggedPatient;
-    private String[] possibleRatings = {"1 - terrible!", "2 - bad", "3 - average", "4 - good", "5 - perfect!"};
-    private Notification successNotification = new Notification();
-    private Notification noRatingNotification = new Notification();
-    private Notification tooEarlyToRateNotification = new Notification();
+    private SessionManager sessionManager;
     private DateConverter dateConverter = new DateConverter();
 
     @Autowired
-    public DoctorsPage(ApiClient apiClient) throws IOException {
+    public DoctorsPage(ApiClient apiClient, SessionManager sessionManager) throws IOException {
         this.apiClient = apiClient;
-
-        loggedPatient = apiClient.getPatients().stream().filter(p -> p.getId().equals(1L)).findFirst().get();
+        this.sessionManager = sessionManager;
 
         setupDoctorsList();
-        setupNotifications();
-
-        add(accordion);
     }
 
     public void setupDoctorsList() {
+        Accordion accordion = new Accordion();
+        String[] possibleRatings = {"1 - terrible!", "2 - bad", "3 - average", "4 - good", "5 - perfect!"};
+
+        Notification ratingAddedNotification = new Notification("Thank you for your rating!",
+                3000);
+        Notification noRatingNotification = new Notification("You have to pick a rating!",
+                3000, Notification.Position.MIDDLE);
+        Notification tooEarlyToRateNotification = new Notification("You can't rate that often!",
+                3000, Notification.Position.MIDDLE);
+        add(ratingAddedNotification, noRatingNotification, tooEarlyToRateNotification);
+
         for (DoctorDto doctor : apiClient.getDoctors()) {
             VerticalLayout verticalLayout = new VerticalLayout();
             HorizontalLayout horizontalLayout = new HorizontalLayout();
@@ -66,13 +69,13 @@ public class DoctorsPage extends VerticalLayout {
             Button rateButton = new Button("Rate " + doctor.getName() + "!");
             rateButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
             rateButton.addClickListener(event -> {
-                if (rateComboBox.getValue() != null && checkRatingPossibility(doctor, loggedPatient)) {
+                if (rateComboBox.getValue() != null && checkRatingPossibility(doctor, sessionManager.getLoggedInUserAsPatient())) {
                     try {
                         addRatingEvent(doctor, Double.parseDouble(rateComboBox.getValue().substring(0, 1)));
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                    successNotification.open();
+                    ratingAddedNotification.open();
                 } else if (rateComboBox.getValue() == null) {
                     noRatingNotification.open();
                 } else {
@@ -86,21 +89,7 @@ public class DoctorsPage extends VerticalLayout {
             accordion.add(doctor.getName(), verticalLayout);
         }
         accordion.close();
-    }
-
-    public void setupNotifications() {
-        successNotification.setText("Thank you for your rating!");
-        successNotification.setDuration(3000);
-
-        noRatingNotification.setText("You have to pick a rating!");
-        noRatingNotification.setDuration(3000);
-        noRatingNotification.setPosition(Notification.Position.MIDDLE);
-
-        tooEarlyToRateNotification.setText("You can't rate that often!");
-        tooEarlyToRateNotification.setDuration(3000);
-        tooEarlyToRateNotification.setPosition(Notification.Position.MIDDLE);
-
-        add(successNotification, noRatingNotification, tooEarlyToRateNotification);
+        add(accordion);
     }
 
     public void addRatingEvent(DoctorDto selectedDoctor, double valueOfRating) throws IOException {
@@ -108,7 +97,7 @@ public class DoctorsPage extends VerticalLayout {
         LocalDateTime dateTime = LocalDateTime.of(LocalDate.now(), LocalTime.now());
 
         ratingToAdd.setDoctorId(selectedDoctor.getId());
-        ratingToAdd.setPatientId(loggedPatient.getId());
+        ratingToAdd.setPatientId(sessionManager.getLoggedInUserAsPatient().getId());
         ratingToAdd.setValue(valueOfRating);
         ratingToAdd.setDateTime(dateConverter.convertToString(dateTime));
 

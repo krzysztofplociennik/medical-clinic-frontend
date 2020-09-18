@@ -1,10 +1,8 @@
 package com.plociennik.medicalclinicfrontend.gui;
-import com.plociennik.medicalclinicfrontend.logic.AuthorityManager;
+
+import com.plociennik.medicalclinicfrontend.logic.SessionManager;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
-import com.vaadin.flow.component.applayout.DrawerToggle;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Image;
@@ -13,20 +11,12 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.Tab;
-import com.vaadin.flow.component.tabs.TabVariant;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.tabs.TabsVariant;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.UIScope;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestWrapper;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSessionBindingEvent;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -38,14 +28,22 @@ import java.util.stream.Stream;
 public class MainView extends VerticalLayout {
     private final DoctorsPage doctorsPage;
     private final AppointmentPage appointmentPage;
-    private DashBoardPage dashBoardPage = new DashBoardPage();
-    private SettingsPage settingsPage = new SettingsPage();
-    private AuthorityManager authorityManager = new AuthorityManager();
+    private DashBoardPage dashBoardPage;
+    private SettingsPage settingsPage;
+    private final SessionManager sessionManager;
 
     @Autowired
-    public MainView (DoctorsPage doctorsPage, AppointmentPage appointmentPage) {
+    public MainView (DashBoardPage dashBoardPage,
+                     AppointmentPage appointmentPage,
+                     DoctorsPage doctorsPage,
+                     SettingsPage settingsPage,
+                     SessionManager sessionManager) {
+        this.dashBoardPage = dashBoardPage;
         this.doctorsPage = doctorsPage;
         this.appointmentPage = appointmentPage;
+        this.settingsPage = settingsPage;
+        this.sessionManager = sessionManager;
+
         setSizeFull();
 
         setupTopLayout();
@@ -62,7 +60,7 @@ public class MainView extends VerticalLayout {
         adminModeLayout.setWidthFull();
         adminModeLayout.setJustifyContentMode(JustifyContentMode.END);
         Text adminModeText = new Text("ADMIN MODE");
-        if (authorityManager.isAdmin()) {
+        if (sessionManager.isAdmin()) {
             adminModeLayout.add(adminModeText);
         }
 
@@ -129,8 +127,8 @@ public class MainView extends VerticalLayout {
         dashBoardPage.setSizeFull();
         appointmentPage.setVisible(false);
         appointmentPage.setSizeFull();
-        doctorsPage.setSizeFull();
         doctorsPage.setVisible(false);
+        doctorsPage.setSizeFull();
         settingsPage.setVisible(false);
         settingsPage.setSizeFull();
         add(pages);

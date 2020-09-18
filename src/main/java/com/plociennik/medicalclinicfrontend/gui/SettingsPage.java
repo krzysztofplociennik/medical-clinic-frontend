@@ -1,4 +1,7 @@
 package com.plociennik.medicalclinicfrontend.gui;
+
+import com.plociennik.medicalclinicfrontend.client.ApiClient;
+import com.plociennik.medicalclinicfrontend.logic.SessionManager;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -10,9 +13,14 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.spring.annotation.UIScope;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+@Component
 @UIScope
 public class SettingsPage extends VerticalLayout {
+    private ApiClient apiClient;
+    private SessionManager sessionManager;
     private Button saveMailButton = new Button("save");
     private Button cancelMailButton = new Button("cancel");
     private Button savePasswordButton = new Button("save");
@@ -24,10 +32,12 @@ public class SettingsPage extends VerticalLayout {
     private HorizontalLayout mailLayout = new HorizontalLayout();
     private HorizontalLayout passwordLayout = new HorizontalLayout();
 
-    public SettingsPage() {
+    @Autowired
+    public SettingsPage(ApiClient apiClient, SessionManager sessionManager) {
+        this.apiClient = apiClient;
+        this.sessionManager = sessionManager;
 
         setSizeFull();
-        setAlignItems(Alignment.CENTER);
 
         setupEmailView();
         setupPasswordView();
@@ -72,7 +82,7 @@ public class SettingsPage extends VerticalLayout {
         });
 
         emailField.setLabel("Your current mail");
-        emailField.setValue("example@com.pl");
+        emailField.setValue(sessionManager.getLoggedInUserAsPatient().getMail());
         emailField.setReadOnly(true);
 
         mailLayout.add(emailField, editMail, saveMailButton, cancelMailButton);
@@ -113,7 +123,7 @@ public class SettingsPage extends VerticalLayout {
         });
 
         passwordField.setLabel("Your current password");
-        passwordField.setValue("jan123");
+        passwordField.setValue(sessionManager.getLoggedInUserAsPatient().getPassword());
         passwordField.setReadOnly(true);
 
         passwordLayout.add(passwordField, editPassword, savePasswordButton, cancelPasswordButton);
