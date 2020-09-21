@@ -78,4 +78,16 @@ public class DoctorDto {
     public void setReservations(List<ReservationDto> reservations) {
         this.reservations = reservations;
     }
+
+    @Override
+    public String toString() {
+        return "DoctorDto{" +
+                "id=" + id +
+                ", \nname='" + name + '\'' +
+                ", \nmail='" + mail + '\'' +
+                ", \nrating='" + rating + '\'' +
+                ", \nratings=" + ratings +
+                ", \nreservations=" + reservations +
+                '}';
+    }
 }

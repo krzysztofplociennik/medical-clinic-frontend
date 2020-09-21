@@ -1,36 +1,33 @@
 package com.plociennik.medicalclinicfrontend.gui;
 
 import com.plociennik.medicalclinicfrontend.client.ApiClient;
+import com.plociennik.medicalclinicfrontend.domain.PatientDto;
 import com.plociennik.medicalclinicfrontend.logic.SessionManager;
-import com.vaadin.flow.component.Key;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.EmailField;
+import com.vaadin.flow.component.textfield.GeneratedVaadinTextField;
 import com.vaadin.flow.component.textfield.PasswordField;
+import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.spring.annotation.UIScope;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.List;
 
 @Component
 @UIScope
 public class SettingsPage extends VerticalLayout {
     private ApiClient apiClient;
     private SessionManager sessionManager;
-    private Button saveMailButton = new Button("save");
-    private Button cancelMailButton = new Button("cancel");
-    private Button savePasswordButton = new Button("save");
-    private Button cancelPasswordButton = new Button("cancel");
-    private EmailField emailField = new EmailField();
-    private PasswordField passwordField = new PasswordField();
-    private Icon editMail = new Icon(VaadinIcon.EDIT);
-    private Icon editPassword = new Icon(VaadinIcon.EDIT);
-    private HorizontalLayout mailLayout = new HorizontalLayout();
-    private HorizontalLayout passwordLayout = new HorizontalLayout();
 
     @Autowired
     public SettingsPage(ApiClient apiClient, SessionManager sessionManager) {
@@ -39,93 +36,103 @@ public class SettingsPage extends VerticalLayout {
 
         setSizeFull();
 
-        setupEmailView();
-        setupPasswordView();
-
-        add(mailLayout, passwordLayout);
+        setupCredentialsFields();
     }
 
-    public void setupEmailView() {
-        saveMailButton.setVisible(false);
-        saveMailButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        saveMailButton.addClickShortcut(Key.ENTER);
-        cancelMailButton.setVisible(false);
-        cancelMailButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
-        saveMailButton.addClickShortcut(Key.ESCAPE);
+    public void setupCredentialsFields() {
+        GeneratedVaadinTextField nameField = new TextField("Current name", sessionManager.getLoggedInUserAsPatient().getName()),
+                mailField = new EmailField("Current mail", sessionManager.getLoggedInUserAsPatient().getMail()),
+                phoneNumberField = new TextField("Current phone number", sessionManager.getLoggedInUserAsPatient().getPhoneNumber()),
+                usernameField = new TextField("Current username", sessionManager.getLoggedInUserAsPatient().getUsername()),
+                passwordField = new PasswordField("Current password", sessionManager.getLoggedInUserAsPatient().getPassword());
+        nameField.addClassName("setname");
+        mailField.addClassName("setmail");
+        phoneNumberField.addClassName("setphonenumber");
+        usernameField.addClassName("setusername");
+        passwordField.addClassName("setpassword");
 
-        editMail.addClickListener(event -> {
-            String oldMail = emailField.getValue();
-            emailField.setReadOnly(false);
-            saveMailButton.setVisible(true);
-            cancelMailButton.setVisible(true);
-            saveMailButton.addClickListener(saveEvent -> {
-                if(emailField.isInvalid()) {
-                    Notification.show("The mail you gave is invalid!");
-                } else if (emailField.getValue().equals(oldMail)) {
-                    saveMailButton.setVisible(false);
-                    cancelMailButton.setVisible(false);
-                    emailField.setReadOnly(true);
-                } else {
-                    Notification.show("The mail has been changed!");
-                    emailField.setValue(emailField.getValue());
-                    saveMailButton.setVisible(false);
-                    cancelMailButton.setVisible(false);
-                    emailField.setReadOnly(true);
-                }
-            });
-            cancelMailButton.addClickListener(cancelEvent -> {
-                saveMailButton.setVisible(false);
-                cancelMailButton.setVisible(false);
-                emailField.setValue(oldMail);
-                emailField.setReadOnly(true);
-            });
-        });
 
-        emailField.setLabel("Your current mail");
-        emailField.setValue(sessionManager.getLoggedInUserAsPatient().getMail());
-        emailField.setReadOnly(true);
+        List<GeneratedVaadinTextField> listOfFields = Arrays.asList(nameField, mailField, phoneNumberField, usernameField, passwordField);
 
-        mailLayout.add(emailField, editMail, saveMailButton, cancelMailButton);
+        Icon showIcon = new Icon(VaadinIcon.EYE);
+        showIcon.setSize("30px");
+        showIcon.addClickListener(event -> showOrHideAllFieldsContent(nameField, listOfFields));
+        HorizontalLayout showContentLayout = new HorizontalLayout(showIcon, new Text("   - if you want to show/hide contents click the eye icon"));
+        add(showContentLayout);
+
+        for (GeneratedVaadinTextField field : listOfFields) {
+            HorizontalLayout horizontalLayout = new HorizontalLayout();
+            horizontalLayout.setAlignItems(Alignment.STRETCH);
+            field.setReadOnly(true);
+            Icon editIcon = new Icon(VaadinIcon.EDIT);
+            Button saveChangeButton = new Button("save"), cancelChangeButton = new Button("cancel");
+            String oldValue = field.getValue().toString();
+            saveChangeButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+            cancelChangeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+
+            saveChangeButton.setVisible(false);
+            cancelChangeButton.setVisible(false);
+            clickEvents(editIcon, saveChangeButton, cancelChangeButton, field, oldValue);
+
+            horizontalLayout.add(field, editIcon, saveChangeButton, cancelChangeButton);
+            add(horizontalLayout);
+        }
     }
 
-    public void setupPasswordView() {
-        savePasswordButton.setVisible(false);
-        savePasswordButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        savePasswordButton.addClickShortcut(Key.ENTER);
-        cancelPasswordButton.setVisible(false);
-        cancelPasswordButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
-        cancelPasswordButton.addClickShortcut(Key.ESCAPE);
-
-        editPassword.addClickListener(event -> {
-            String oldPass = passwordField.getValue();
-            passwordField.setReadOnly(false);
-            savePasswordButton.setVisible(true);
-            cancelPasswordButton.setVisible(true);
-            savePasswordButton.addClickListener(saveEvent -> {
-                if (passwordField.getValue().equals(oldPass)) {
-                    savePasswordButton.setVisible(false);
-                    cancelPasswordButton.setVisible(false);
-                    passwordField.setReadOnly(true);
-                } else {
-                    Notification.show("The password has been changed!");
-                    passwordField.setValue(passwordField.getValue());
-                    savePasswordButton.setVisible(false);
-                    cancelPasswordButton.setVisible(false);
-                    passwordField.setReadOnly(true);
-                }
-            });
-            cancelPasswordButton.addClickListener(cancelEvent -> {
-                savePasswordButton.setVisible(false);
-                cancelPasswordButton.setVisible(false);
-                passwordField.setValue(oldPass);
-                passwordField.setReadOnly(true);
-            });
+    public void clickEvents(Icon editIcon, Button saveButton, Button cancelButton, GeneratedVaadinTextField field, String oldValue) {
+        editIcon.addClickListener(event -> {
+            if (saveButton.isVisible()) {
+                field.setReadOnly(true);
+                field.setValue(oldValue);
+                saveButton.setVisible(false);
+                cancelButton.setVisible(false);
+            } else {
+                field.setReadOnly(false);
+                saveButton.setVisible(true);
+                cancelButton.setVisible(true);
+            }
         });
+        saveButton.addClickListener(event -> {
+            try {
+                changeFieldValue(field);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+            field.setReadOnly(true);
+            saveButton.setVisible(false);
+            cancelButton.setVisible(false);
+        });
+        cancelButton.addClickListener(event -> {
+            field.setReadOnly(true);
+            field.setValue(oldValue);
+            saveButton.setVisible(false);
+            cancelButton.setVisible(false);
+        });
+    }
 
-        passwordField.setLabel("Your current password");
-        passwordField.setValue(sessionManager.getLoggedInUserAsPatient().getPassword());
-        passwordField.setReadOnly(true);
+    public void changeFieldValue(GeneratedVaadinTextField editedField) throws IOException, InvocationTargetException, IllegalAccessException {
+        PatientDto patientToBeEdited = apiClient.getPatients().stream()
+                .filter(patientDto -> patientDto.getUsername().equals(sessionManager.getLoggedInUserAsPatient().getUsername()))
+                .findAny().get();
 
-        passwordLayout.add(passwordField, editPassword, savePasswordButton, cancelPasswordButton);
+        Method[] methods = patientToBeEdited.getClass().getMethods();
+        Method searchedMethod = Arrays.stream(methods)
+                .filter(method -> method.getName().toLowerCase().contains(editedField.getClassName()))
+                .findFirst().get();
+        searchedMethod.invoke(patientToBeEdited, editedField.getValue());
+
+        apiClient.updatePatient(patientToBeEdited);
+    }
+
+    public void showOrHideAllFieldsContent(GeneratedVaadinTextField nameField, List<GeneratedVaadinTextField> list) {
+        if (nameField.isReadOnly()) {
+            list.stream().forEach(generatedVaadinTextField -> generatedVaadinTextField.setReadOnly(false));
+        } else {
+            list.stream().forEach(generatedVaadinTextField -> generatedVaadinTextField.setReadOnly(true));
+        }
     }
 }

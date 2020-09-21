@@ -1,7 +1,9 @@
 package com.plociennik.medicalclinicfrontend.client;
 import com.google.gson.Gson;
 import com.plociennik.medicalclinicfrontend.domain.*;
+import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
@@ -24,6 +26,8 @@ import static java.util.Optional.ofNullable;
 @Component
 public class ApiClient {
     private static final Logger LOGGER = LoggerFactory.getLogger(ApiClient.class);
+    private Gson gson = new Gson();
+
     @Autowired
     private RestTemplate restTemplate;
     @Value("${api.endpoint}")
@@ -49,6 +53,7 @@ public class ApiClient {
                 .queryParam("reservationId", id)
                 .build().encode().toUri();
     }
+
 
     public List<ReservationDto> getReservations() {
         try {
@@ -80,12 +85,32 @@ public class ApiClient {
         }
     }
 
+    public void editPatient() {
+    }
+
+    public void updatePatient(PatientDto patientDto) throws IOException {
+
+        String jsonContent = gson.toJson(patientDto);
+
+        CloseableHttpClient httpClient = HttpClientBuilder.create().build();
+        try {
+            HttpPut request = new HttpPut(baseEndpoint + "/pnt/updatePatient");
+            StringEntity params = new StringEntity(jsonContent);
+            request.addHeader("content-type", "application/json");
+            request.setEntity(params);
+            httpClient.execute(request);
+        } catch (Exception ex) {
+        } finally {
+            httpClient.close();
+        }
+    }
+
     public void createReservation(ReservationDto reservationDto) throws IOException {
         ReservationDto reservation = new ReservationDto();
         reservation.setTime(reservationDto.getTime());
         reservation.setPatientId(reservationDto.getPatientId());
         reservation.setDoctorId(reservationDto.getDoctorId());
-        Gson gson = new Gson();
+
         String jsonContent = gson.toJson(reservation);
 
         CloseableHttpClient httpClient = HttpClientBuilder.create().build();
@@ -114,7 +139,7 @@ public class ApiClient {
         ratingToConvert.setDoctorId(ratingDto.getDoctorId());
         ratingToConvert.setPatientId(ratingDto.getPatientId());
         ratingToConvert.setDateTime(ratingDto.getDateTime());
-        Gson gson = new Gson();
+
         String jsonContent = gson.toJson(ratingToConvert);
 
         CloseableHttpClient httpClient = HttpClientBuilder.create().build();

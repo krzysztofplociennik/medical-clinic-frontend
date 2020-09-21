@@ -1,5 +1,6 @@
 package com.plociennik.medicalclinicfrontend.domain;
 
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -29,6 +30,9 @@ public class PatientDto {
     public PatientDto() {
         if (ratings == null) {
             ratings = new LinkedHashSet<>();
+        }
+        if (reservations == null) {
+            reservations = new ArrayList<>();
         }
     }
 
@@ -101,11 +105,11 @@ public class PatientDto {
     public String toString() {
         return "PatientDto{" +
                 "id=" + id +
-                ", name='" + name + '\'' +
-                ", mail='" + mail + '\'' +
-                ", phoneNumber='" + phoneNumber + '\'' +
-                ", username='" + username + '\'' +
-                ", password='" + password + '\'' +
+                ", \nname='" + name + '\'' +
+                ", \nmail='" + mail + '\'' +
+                ", \nphoneNumber='" + phoneNumber + '\'' +
+                ", \nusername='" + username + '\'' +
+                ", \npassword='" + password + '\'' +
                 '}';
     }
 }
