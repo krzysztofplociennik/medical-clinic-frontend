@@ -13,7 +13,6 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
-import java.util.List;
 
 @EnableWebSecurity
 @Configuration
@@ -25,6 +24,11 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private static final String LOGIN_FAILURE_URL = "/login?error";
     private static final String LOGIN_URL = "/login";
     private static final String LOGOUT_SUCCESS_URL = "/login";
+    private InMemoryUserDetailsManager memoryUserDetailsManager = new InMemoryUserDetailsManager();
+
+    public InMemoryUserDetailsManager getMemoryUserDetailsManager() {
+        return memoryUserDetailsManager;
+    }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -45,9 +49,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Bean
     @Override
     public UserDetailsService userDetailsService() {
-
-        InMemoryUserDetailsManager memoryUserDetailsManager = new InMemoryUserDetailsManager();
-
         for (PatientDto patient : apiClient.getPatients()) {
             if (patient.getUsername().equals("admin")) {
                 UserDetails admin = User.withDefaultPasswordEncoder()

@@ -42,14 +42,6 @@ public class DoctorsPage extends VerticalLayout {
         Accordion accordion = new Accordion();
         String[] possibleRatings = {"1 - terrible!", "2 - bad", "3 - average", "4 - good", "5 - perfect!"};
 
-        Notification ratingAddedNotification = new Notification("Thank you for your rating!",
-                3000);
-        Notification noRatingNotification = new Notification("You have to pick a rating!",
-                3000, Notification.Position.MIDDLE);
-        Notification tooEarlyToRateNotification = new Notification("You can't rate that often!",
-                3000, Notification.Position.MIDDLE);
-        add(ratingAddedNotification, noRatingNotification, tooEarlyToRateNotification);
-
         for (DoctorDto doctor : apiClient.getDoctors()) {
             VerticalLayout verticalLayout = new VerticalLayout();
             HorizontalLayout horizontalLayout = new HorizontalLayout();
@@ -75,11 +67,11 @@ public class DoctorsPage extends VerticalLayout {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                    ratingAddedNotification.open();
+                    Notification.show("Thank you for your rating!", 3000, Notification.Position.BOTTOM_CENTER);
                 } else if (rateComboBox.getValue() == null) {
-                    noRatingNotification.open();
+                    Notification.show("You have to pick a rating!", 3000, Notification.Position.MIDDLE);
                 } else {
-                    tooEarlyToRateNotification.open();
+                    Notification.show("You can't rate that often!", 3000, Notification.Position.MIDDLE);
                 }
             });
 
