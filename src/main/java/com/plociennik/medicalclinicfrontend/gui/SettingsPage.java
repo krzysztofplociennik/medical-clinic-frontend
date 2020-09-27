@@ -59,8 +59,8 @@ public class SettingsPage extends VerticalLayout {
 
         List<GeneratedVaadinTextField> listOfFields = Arrays.asList(nameField, mailField, phoneNumberField, usernameField, passwordField);
 
-        HorizontalLayout showContentLayout = new HorizontalLayout(new Paragraph("If you want to show and edit a specific content click the edit icon"));
-        add(showContentLayout);
+        Paragraph introMessage = new Paragraph("If you want to show and edit a specific content click the edit icon");
+        add(introMessage);
 
         for (GeneratedVaadinTextField field : listOfFields) {
             HorizontalLayout horizontalLayout = new HorizontalLayout();

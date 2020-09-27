@@ -26,23 +26,26 @@ import java.util.stream.Stream;
 @PageTitle("Dashboard | Clinic")
 @UIScope
 public class MainView extends VerticalLayout {
-    private final DoctorsPage doctorsPage;
-    private final AppointmentPage appointmentPage;
+    private DoctorsPage doctorsPage;
+    private AppointmentPage appointmentPage;
     private DashBoardPage dashBoardPage;
     private SettingsPage settingsPage;
-    private final SessionManager sessionManager;
+    private SessionManager sessionManager;
+    private AdminPage adminPage;
 
     @Autowired
     public MainView (DashBoardPage dashBoardPage,
                      AppointmentPage appointmentPage,
                      DoctorsPage doctorsPage,
                      SettingsPage settingsPage,
-                     SessionManager sessionManager) {
+                     SessionManager sessionManager,
+                     AdminPage adminPage) {
         this.dashBoardPage = dashBoardPage;
         this.doctorsPage = doctorsPage;
         this.appointmentPage = appointmentPage;
         this.settingsPage = settingsPage;
         this.sessionManager = sessionManager;
+        this.adminPage = adminPage;
 
         setSizeFull();
 
@@ -55,6 +58,7 @@ public class MainView extends VerticalLayout {
         HorizontalLayout topHorizontalLayout = new HorizontalLayout();
         topHorizontalLayout.setWidthFull();
         Image logo = new Image("https://imgur.com/DPlKR0y.jpg", "logo");
+        logo.setHeight("60px");
 
         HorizontalLayout adminModeLayout = new HorizontalLayout();
         adminModeLayout.setWidthFull();
@@ -79,23 +83,24 @@ public class MainView extends VerticalLayout {
     public void setupTabs() {
         Icon iconDashboard = new Icon(VaadinIcon.HOME);
         iconDashboard.setSize("38px");
-        iconDashboard.setColor("0000F0");
         Tab dashBoardTab = new Tab(iconDashboard);
 
         Icon iconAppointments = new Icon(VaadinIcon.LIST_OL);
         iconAppointments.setSize("38px");
-        iconAppointments.setColor("0000F0");
         Tab appointmentTab = new Tab(iconAppointments);
 
         Icon iconDoctors = new Icon(VaadinIcon.DOCTOR);
         iconDoctors.setSize("38px");
-        iconDoctors.setColor("0000F0");
         Tab doctorsTab = new Tab(iconDoctors);
 
         Icon iconSettings = new Icon(VaadinIcon.COG);
         iconSettings.setSize("38px");
-        iconSettings.setColor("0000F0");
         Tab settingsTab = new Tab(iconSettings);
+
+        Icon iconAdmin = new Icon(VaadinIcon.KEY);
+        iconAdmin.setSize("38px");
+        iconAdmin.setColor("#9D2141");
+        Tab adminTab = new Tab(iconAdmin);
 
         Tabs tabs = new Tabs(dashBoardTab, appointmentTab, doctorsTab, settingsTab);
         tabs.setHeight("200px");
@@ -105,6 +110,10 @@ public class MainView extends VerticalLayout {
         tabsToPages.put(appointmentTab, appointmentPage);
         tabsToPages.put(doctorsTab, doctorsPage);
         tabsToPages.put(settingsTab, settingsPage);
+        if (sessionManager.isAdmin()) {
+            tabsToPages.put(adminTab, adminPage);
+            tabs.add(adminTab);
+        }
         Set<Component> pagesShown = Stream.of(dashBoardPage)
                 .collect(Collectors.toSet());
 
@@ -121,7 +130,7 @@ public class MainView extends VerticalLayout {
     }
 
     public void setupPages() {
-        Div pages = new Div(dashBoardPage, appointmentPage, doctorsPage, settingsPage);
+        Div pages = new Div(dashBoardPage, appointmentPage, doctorsPage, settingsPage, adminPage);
         pages.setSizeFull();
 
         dashBoardPage.setSizeFull();
@@ -131,6 +140,8 @@ public class MainView extends VerticalLayout {
         doctorsPage.setSizeFull();
         settingsPage.setVisible(false);
         settingsPage.setSizeFull();
+        adminPage.setVisible(false);
+        adminPage.setSizeFull();
         add(pages);
     }
 }

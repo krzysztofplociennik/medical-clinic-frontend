@@ -17,10 +17,8 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 import java.io.IOException;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+
 import static java.util.Optional.ofNullable;
 
 @Component
@@ -38,6 +36,11 @@ public class ApiClient {
                 .build().encode().toUri();
     }
 
+    private URI getAllRatingsURI() {
+        return UriComponentsBuilder.fromHttpUrl(baseEndpoint + "/rate/getRatings")
+                .build().encode().toUri();
+    }
+
     private URI getAllDoctorsURI() {
         return UriComponentsBuilder.fromHttpUrl(baseEndpoint + "/dtr/getDoctors")
                 .build().encode().toUri();
@@ -48,17 +51,43 @@ public class ApiClient {
                 .build().encode().toUri();
     }
 
+    private URI deletePatientURI(Long id) {
+        return UriComponentsBuilder.fromHttpUrl(baseEndpoint + "/pnt/deletePatient")
+                .queryParam("patientId", id)
+                .build().encode().toUri();
+    }
+
+    private URI deleteDoctorURI(Long id) {
+        return UriComponentsBuilder.fromHttpUrl(baseEndpoint + "/dtr/deleteDoctor")
+                .queryParam("doctorId", id)
+                .build().encode().toUri();
+    }
+
     private URI deleteReservationURI(Long id) {
         return UriComponentsBuilder.fromHttpUrl(baseEndpoint + "/rsrv/deleteReservation")
                 .queryParam("reservationId", id)
                 .build().encode().toUri();
     }
 
+    private URI deleteRatingURI(Long id) {
+        return UriComponentsBuilder.fromHttpUrl(baseEndpoint + "/rate/deleteRating")
+                .queryParam("ratingId", id)
+                .build().encode().toUri();
+    }
 
     public List<ReservationDto> getReservations() {
         try {
             ReservationDto[] response = restTemplate.getForObject(getAllReservationsURI(), ReservationDto[].class);
             return Arrays.asList(ofNullable(response).orElse(new ReservationDto[0]));
+        } catch (RestClientException e) {
+            LOGGER.error(e.getMessage(), e);
+            return new ArrayList<>();
+        }
+    }
+    public List<RatingDto> getRatings() {
+        try {
+            RatingDto[] response = restTemplate.getForObject(getAllRatingsURI(), RatingDto[].class);
+            return Arrays.asList(ofNullable(response).orElse(new RatingDto[0]));
         } catch (RestClientException e) {
             LOGGER.error(e.getMessage(), e);
             return new ArrayList<>();
@@ -85,9 +114,6 @@ public class ApiClient {
         }
     }
 
-    public void editPatient() {
-    }
-
     public void updatePatient(PatientDto patientDto) throws IOException {
 
         String jsonContent = gson.toJson(patientDto);
@@ -103,6 +129,20 @@ public class ApiClient {
         } finally {
             httpClient.close();
         }
+    }
+
+    public void deletePatient(PatientDto patientDto) {
+        Optional<PatientDto> searchedPatient = getPatients().stream()
+                .filter(patientDto1 -> patientDto1.getId().equals(patientDto.getId()))
+                .findFirst();
+        restTemplate.delete(deletePatientURI(searchedPatient.get().getId()));
+    }
+
+    public void deleteDoctor(DoctorDto doctorDto) {
+        Optional<DoctorDto> searchedDoctor = getDoctors().stream()
+                .filter(reservationDto -> reservationDto.getId().equals(doctorDto.getId()))
+                .findFirst();
+        restTemplate.delete(deleteDoctorURI(searchedDoctor.get().getId()));
     }
 
     public void createReservation(ReservationDto reservationDto) throws IOException {
@@ -131,6 +171,20 @@ public class ApiClient {
                 .filter(reservationDto -> reservationDto.getTime().equals(reservation.getWhen()))
                 .findFirst();
         restTemplate.delete(deleteReservationURI(searchedReservation.get().getId()));
+    }
+
+    public void deleteReservation(ReservationDto reservation) {
+        Optional<ReservationDto> searchedReservation = getReservations().stream()
+                .filter(reservationDto -> reservationDto.getId().equals(reservation.getId()))
+                .findFirst();
+        restTemplate.delete(deleteReservationURI(searchedReservation.get().getId()));
+    }
+
+    public void deleteRating(RatingDto ratingDto) {
+        Optional<RatingDto> searchedRating = getRatings().stream()
+                .filter(ratingDto1 -> ratingDto1.getId().equals(ratingDto.getId()))
+                .findFirst();
+        restTemplate.delete(deleteRatingURI(searchedRating.get().getId()));
     }
 
     public void addNewRating(RatingDto ratingDto) throws IOException {
