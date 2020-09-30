@@ -7,8 +7,10 @@ import com.plociennik.medicalclinicfrontend.domain.RatingDto;
 import com.plociennik.medicalclinicfrontend.domain.ReservationDto;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Paragraph;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -22,12 +24,13 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-
 @Component
 @UIScope
-public class AdminPage extends HorizontalLayout {
+public class AdminPage extends VerticalLayout {
     private ApiClient apiClient;
+    private HorizontalLayout contentLayout = new HorizontalLayout();
     private VerticalLayout selectsLayout = new VerticalLayout();
+    private Dialog deletePrompt = new Dialog();
 
     @Autowired
     public AdminPage(ApiClient apiClient) {
@@ -72,8 +75,10 @@ public class AdminPage extends HorizontalLayout {
                 listOfSelects.stream().forEach(s -> s.setEnabled(false));
             });
         }
-        selectsLayout.add(introMessage, patients, doctors, reservations, ratings);
-        add(selectsLayout);
+        selectsLayout.add(patients, doctors, reservations, ratings);
+        selectsLayout.setWidth("500px");
+        contentLayout.add(selectsLayout);
+        add(introMessage, contentLayout);
     }
 
     public void setupDetailsForm(Object object, List<Select<?>> list) {
@@ -84,8 +89,11 @@ public class AdminPage extends HorizontalLayout {
 
         Arrays.asList(patientForm, doctorForm, reservationForm, ratingForm);
 
+        setupDeletePrompt(object);
+
         switch (object.getClass().getSimpleName()) {
             case "PatientDto":
+                setupDeletePrompt(object);
                 if (patientForm.isVisible()) {
                     remove(patientForm);
                     FormLayout newForm = new FormLayout();
@@ -140,12 +148,7 @@ public class AdminPage extends HorizontalLayout {
         Button buttonDelete = new Button("delete", event -> {
             form.setVisible(false);
             list.stream().forEach(select -> select.setEnabled(true));
-            try {
-                deleteSelectedItem(object);
-                reloadPage();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            deletePrompt.open();
         });
         buttonDelete.addThemeVariants(ButtonVariant.LUMO_ERROR);
         Button buttonCancel = new Button("cancel", event -> {
@@ -159,7 +162,7 @@ public class AdminPage extends HorizontalLayout {
         VerticalLayout verticalDetailsFormLayout = new VerticalLayout(firstLineOfDataLayout, secondLineOfDataLayout, buttonsLayout);
         form.add(verticalDetailsFormLayout);
         form.setVisible(true);
-        add(form);
+        contentLayout.add(form);
     }
 
     public void createDoctorForm(Object object, FormLayout form, List<Select<?>> list) {
@@ -173,12 +176,7 @@ public class AdminPage extends HorizontalLayout {
         Button buttonDelete = new Button("delete", event -> {
             form.setVisible(false);
             list.stream().forEach(select -> select.setEnabled(true));
-            try {
-                deleteSelectedItem(object);
-                reloadPage();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            deletePrompt.open();
         });
         buttonDelete.addThemeVariants(ButtonVariant.LUMO_ERROR);
         Button buttonCancel = new Button("cancel", event -> {
@@ -192,7 +190,7 @@ public class AdminPage extends HorizontalLayout {
         VerticalLayout verticalDetailsFormLayout = new VerticalLayout(firstLineOfDataLayout, secondLineOfDataLayout, buttonsLayout);
         form.add(verticalDetailsFormLayout);
         form.setVisible(true);
-        add(form);
+        contentLayout.add(form);
     }
 
     public void createReservationForm(Object object, FormLayout form, List<Select<?>> list) {
@@ -206,13 +204,7 @@ public class AdminPage extends HorizontalLayout {
         Button buttonDelete = new Button("delete", event -> {
             form.setVisible(false);
             list.stream().forEach(select -> select.setEnabled(true));
-            try {
-                deleteSelectedItem(object);
-                reloadPage();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
+            deletePrompt.open();
         });
         buttonDelete.addThemeVariants(ButtonVariant.LUMO_ERROR);
         Button buttonCancel = new Button("cancel", event -> {
@@ -226,7 +218,7 @@ public class AdminPage extends HorizontalLayout {
         VerticalLayout verticalDetailsFormLayout = new VerticalLayout(firstLineOfDataLayout, secondLineOfDataLayout, buttonsLayout);
         form.add(verticalDetailsFormLayout);
         form.setVisible(true);
-        add(form);
+        contentLayout.add(form);
     }
 
     public void createRatingForm(Object object, FormLayout form, List<Select<?>> list) {
@@ -234,19 +226,14 @@ public class AdminPage extends HorizontalLayout {
         TextField fieldValue = new TextField("Value", String.valueOf(((RatingDto) object).getValue()), "Value");
         TextField fieldPatientId = new TextField("Patient ID", String.valueOf(((RatingDto) object).getPatientId()), "Patient ID");
         TextField fieldDoctorId = new TextField("Doctor ID", String.valueOf(((RatingDto) object).getDoctorId()), "Doctor ID");
-        TextField fieldTime = new TextField("Time", String.valueOf(((RatingDto) object).getValue()), "Time");
+        TextField fieldTime = new TextField("Time", String.valueOf(((RatingDto) object).getDateTime()), "Time");
 
         Arrays.asList(fieldID, fieldValue, fieldPatientId, fieldDoctorId, fieldTime).stream().forEach(textField -> textField.setReadOnly(true));
 
         Button buttonDelete = new Button("delete", event -> {
             form.setVisible(false);
             list.stream().forEach(select -> select.setEnabled(true));
-            try {
-                deleteSelectedItem(object);
-                reloadPage();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            deletePrompt.open();
         });
         buttonDelete.addThemeVariants(ButtonVariant.LUMO_ERROR);
         Button buttonCancel = new Button("cancel", event -> {
@@ -260,34 +247,67 @@ public class AdminPage extends HorizontalLayout {
         VerticalLayout verticalDetailsFormLayout = new VerticalLayout(firstLineOfDataLayout, secondLineOfDataLayout, buttonsLayout);
         form.add(verticalDetailsFormLayout);
         form.setVisible(true);
-        add(form);
+        contentLayout.add(form);
     }
 
     public void deleteSelectedItem(Object object) {
         switch (object.getClass().getSimpleName()) {
             case "PatientDto":
                 apiClient.deletePatient((PatientDto) object);
-                Notification.show("Patient has been deleted\nThe page will now reload", 3000, Notification.Position.BOTTOM_CENTER);
+                System.out.println("The object that was deleted was: \n" + object.toString());
                 break;
             case "DoctorDto":
                 apiClient.deleteDoctor((DoctorDto) object);
-                Notification.show("Doctor has been deleted\nThe page will now reload", 3000, Notification.Position.BOTTOM_CENTER);
+                System.out.println("The object that was deleted was: \n" + object.toString());
                 break;
             case "ReservationDto":
                 apiClient.deleteReservation((ReservationDto) object);
-                Notification.show("Reservation has been deleted\nThe page will now reload", 3000, Notification.Position.BOTTOM_CENTER);
+                System.out.println("The object that was deleted was: \n" + object.toString());
                 break;
             case "RatingDto":
                 apiClient.deleteRating((RatingDto) object);
-                Notification.show("Rating has been deleted\nThe page will now reload", 3000, Notification.Position.BOTTOM_CENTER);
+                System.out.println("The object that was deleted was: \n" + object.toString());
                 break;
             default:
                 Notification.show("Something went wrong.", 3000, Notification.Position.MIDDLE);
         }
     }
 
+    public void setupDeletePrompt(Object object) {
+        if (deletePrompt.getParent().isPresent()) {
+            deletePrompt = new Dialog();
+        }
+        VerticalLayout dialogLayout = new VerticalLayout();
+        HorizontalLayout buttons = new HorizontalLayout();
+
+        deletePrompt.setCloseOnEsc(true);
+        deletePrompt.setCloseOnOutsideClick(true);
+
+        Span message = new Span();
+        message.setText("Are you sure you want to delete the object?\nThe site will be reloaded after deleting it.");
+
+        Button confirmButton = new Button("YES, delete the object", event -> {
+            deletePrompt.close();
+            deleteSelectedItem(object);
+            try {
+                reloadPage();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
+        confirmButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
+        Button cancelButton = new Button("NO, don't delete the object", event -> {
+            deletePrompt.close();
+        });
+
+        buttons.add(confirmButton, cancelButton);
+        dialogLayout.add(message, buttons);
+        deletePrompt.add(dialogLayout);
+        add(deletePrompt);
+    }
+
     public void reloadPage() throws InterruptedException {
-//        TimeUnit.SECONDS.sleep(5);
-//        getUI().get().getPage().reload();
+        TimeUnit.SECONDS.sleep(1);
+        getUI().get().getPage().reload();
     }
 }

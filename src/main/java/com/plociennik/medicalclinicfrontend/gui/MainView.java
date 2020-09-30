@@ -23,7 +23,7 @@ import java.util.stream.Stream;
 
 @org.springframework.stereotype.Component
 @Route
-@PageTitle("Dashboard | Clinic")
+@PageTitle("Medical Clinic")
 @UIScope
 public class MainView extends VerticalLayout {
     private DoctorsPage doctorsPage;
