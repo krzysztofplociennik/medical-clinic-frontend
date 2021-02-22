@@ -1,86 +1,10 @@
 <h1> Medical Clinic Project </h1>
 
-<<<<<<< HEAD
-Projekt przychodni medycznej. Jest utrzymany w formie strony 
-internetowej, na którą można się zalogować, umówić wizytę albo 
-zmienić swoje dane.
-
-Projekt ma osobną strukturę dla backendu i frontendu.
-Link do backendu: https://github.com/krzysztofplociennik/medical-clinic-backend
-
-**Stack**
-
-Przy projekcie korzystałem z:
-- java 8
-- hibernate
-- mysql
-- spring boot
-- spring security
-- vaadin
-=======
-This medical clinic project has a form of a website where you can login, setup an appointment or change your credentials. 
->>>>>>> d5f668b81410a6edc27d522b9772272d57e17d7c
+This medical clinic project has a form of a website where you can login, setup an appointment or change your credentials.
 
 The project has a separate backend and frontend. Backend:
 https://github.com/krzysztofplociennik/medical-clinic-backend
 
-<<<<<<< HEAD
-Na chwilę obecną jest 3 użytkowników z następującymi danymi = login | hasło: 
-1. jamilyn | jaha
-2. mariof | mafe
-3. ryahn | ryhi
-
-Dodatkowo można też zalogować się jako admin: 
-admin | 123
-
-**Jak wygląda strona?**
-
-Login:
-
-![login](src/main/resources/screenshots/login.png)
-
-
-Dash użytkownika: 
-
-![login](src/main/resources/screenshots/user%20-%20dashboard.png)
-
-Rezerwowanie wizyt:
-
-![login](src/main/resources/screenshots/user%20-%20appointments1.png)
-
-Można też konkretne wizyty usunąć z bazy, zaznaczając konkretny 
-rekord:
-
-![login](src/main/resources/screenshots/user%20-%20appointments2.png)
-
-Strona dostępnych lekarzy (dodatkowo można sprawdzić, jak zostali 
-ocenieni oraz sami możemy ocenić ich):
-
-![login](src/main/resources/screenshots/user%20-%20doctors.png)
-
-Na samym końcu mamy możliwość podejrzenia danych zalogowanego
-użytkownika oraz ich edycji (oprócz loginu):
-
-![login](src/main/resources/screenshots/user%20-%20settings.png)
-
-Logując się jako admin mamy dodatkowo dostęp do jeszcze jednej 
-zakładki na stronie: 
-
-![login](src/main/resources/screenshots/admin%20-%20dashboard.png)
-
-Można w niej zobaczyć listę pacjentów, lekarzy, rezerwacji oraz ocen.
-Przy wybraniu konkretnego obiektu pokazują się jego dane:
-
-![login](src/main/resources/screenshots/admin%20-%20settings.png)
-
-oraz możliwość usunięcia z bazy danego obiektu (co też poprzedzone jest
-wymaganym potwierdzeniem):
-
-![login](src/main/resources/screenshots/admin%20-%20prompt.png)
-
-**Deploy**
-
-W trakcie...
 =======
 **Stack**
 
@@ -93,7 +17,7 @@ W trakcie...
 
 **How to use?***
 
-For a time being there are 3 users with credentials (login | password): 
+For the time being there are 3 users with credentials (login | password): 
 1. jamilyn | jaha
 2. mariof | mafe
 3. ryahn | ryhi
@@ -144,4 +68,3 @@ and if you feel like it you can delete the object as well (and then confirm or c
 **Deploy**
 
 In progress...
->>>>>>> d5f668b81410a6edc27d522b9772272d57e17d7c
