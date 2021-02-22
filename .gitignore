@@ -2,6 +2,12 @@ HELP.md
 .gradle
 build/
 !gradle/wrapper/gradle-wrapper.jar
+target
+node_modules
+package-lock.json
+package.json
+webpack.generated.js
+webpack.config.js
 !**/src/main/**
 !**/src/test/**
 

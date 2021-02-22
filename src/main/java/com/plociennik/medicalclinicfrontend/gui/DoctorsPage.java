@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.Period;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -107,13 +108,13 @@ public class DoctorsPage extends VerticalLayout {
 
         List<LocalDateTime> listOfRatings = searchedDoctor.get().getRatings().stream()
                 .filter(ratingDto -> ratingDto.getPatientId().equals(patient.getId()))
-                .map(ratingDto -> ratingDto.getDateTime())
+                .map(RatingDto::getDateTime)
                 .map(s -> dateConverter.convertToLocalDateTime(s))
                 .sorted(Comparator.reverseOrder())
                 .collect(Collectors.toList());
 
         if (listOfRatings.size() > 0) {
-            if (listOfRatings.get(0).compareTo(LocalDateTime.now()) < -1) {
+            if (Period.between(LocalDate.now(), listOfRatings.get(0).toLocalDate()).toString().length() > 3) {
                 return true;
             } else {
                 return false;
