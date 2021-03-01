@@ -66,9 +66,7 @@ public class AppointmentPage extends VerticalLayout {
         ArrayList<UserFriendlyReservation> friendlyList = new ArrayList<>();
         for (ReservationDto instance : sessionManager.getLoggedInUserAsPatient().getReservations()) {
             Optional<DoctorDto> searchedDoctor = apiClient.getDoctors().stream().filter(doctorDto -> doctorDto.getId().equals(instance.getDoctorId())).findFirst();
-            if (searchedDoctor.isPresent()) {
-                friendlyList.add(new UserFriendlyReservation(searchedDoctor.get().getName(), instance.getTime()));
-            }
+            searchedDoctor.ifPresent(doctorDto -> friendlyList.add(new UserFriendlyReservation(doctorDto.getName(), instance.getTime())));
         }
         gridUserFriendlyList.setItems(friendlyList);
         gridUserFriendlyList.addThemeVariants(GridVariant.LUMO_WRAP_CELL_CONTENT);

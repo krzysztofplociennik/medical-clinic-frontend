@@ -5,7 +5,6 @@ This medical clinic project has a form of a website where you can login, setup a
 The project has a separate backend and frontend. Backend:
 https://github.com/krzysztofplociennik/medical-clinic-backend
 
-=======
 **Stack**
 
 - java 8

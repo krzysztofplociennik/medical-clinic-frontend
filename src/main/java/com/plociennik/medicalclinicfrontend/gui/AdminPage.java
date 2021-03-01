@@ -9,7 +9,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.html.Paragraph;
+import com.vaadin.flow.component.html.H5;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -40,7 +40,7 @@ public class AdminPage extends VerticalLayout {
     }
 
     public void setupSelects() {
-        Paragraph introMessage = new Paragraph("Select a desired object to see the details");
+        H5 introMessage = new H5("Select a desired object to see the details");
         Select<PatientDto> patients = new Select<>();
         patients.addClassName("patients");
         patients.setLabel("Patients");

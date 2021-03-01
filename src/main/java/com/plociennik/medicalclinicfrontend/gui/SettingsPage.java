@@ -6,6 +6,7 @@ import com.plociennik.medicalclinicfrontend.logic.SessionManager;
 import com.plociennik.medicalclinicfrontend.security.SecurityConfiguration;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.html.H5;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -59,7 +60,7 @@ public class SettingsPage extends VerticalLayout {
 
         List<GeneratedVaadinTextField> listOfFields = Arrays.asList(nameField, mailField, phoneNumberField, usernameField, passwordField);
 
-        Paragraph introMessage = new Paragraph("If you want to show and edit a specific content click the edit icon");
+        H5 introMessage = new H5("If you want to show and edit a specific content click the edit icon");
         add(introMessage);
 
         for (GeneratedVaadinTextField field : listOfFields) {

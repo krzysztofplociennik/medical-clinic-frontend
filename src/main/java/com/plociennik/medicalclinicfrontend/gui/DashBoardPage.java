@@ -1,12 +1,7 @@
 package com.plociennik.medicalclinicfrontend.gui;
 
-import com.vaadin.flow.component.Text;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.html.Paragraph;
-import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.html.H4;
+import com.vaadin.flow.component.html.H5;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.spring.annotation.UIScope;
 import org.springframework.stereotype.Component;
@@ -21,10 +16,9 @@ public class DashBoardPage extends VerticalLayout {
     }
 
     public void setupText() {
-        Text textWelcomeMessage = new Text("Welcome to our Clinic!");
-        Text textIntroMessage = new Text("Here you can manage your appointments and check which doctors" +
-                " are available!");
+        H4 textWelcomeMessage = new H4("Welcome to our Clinic!");
+        H5 textIntroMessage = new H5("Here you can manage your appointments and check which doctors are available!");
 
-        add(new Paragraph(textWelcomeMessage), textIntroMessage);
+        add(textWelcomeMessage, textIntroMessage);
     }
 }
